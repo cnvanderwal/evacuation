@@ -1,0 +1,165 @@
+to setup-model
+  set L_STEEPNESS   20   ; logistic function: sigma parameter
+  set L_THRESHOLD   0.5  ; logistic function: tau parameter
+  set AL_STEEPNESS  2    ; alogistic function: sigma parameter
+  set AL_THRESHOLD  0.14 ; alogistic function: tau parameter
+  set ETA_MENTAL    0.9  ; see st_belief_dangerous scaled sum function  : it is IMPORTANT keep the proportion between ETAs around 50%
+  set ETA_BODY      0.9  ; see st_belief_dangerous scaled sum function  
+ 
+  set W_sensing_fire         1
+  set W_sensing              0.5  
+  set W_affectivebiasing     1
+  set W_persisting           0.95
+  set W_amplifyingfeeling    1
+  set W_inhibitingfeeling    -0.5
+  set W_amplifyingevacuation 1
+  set W_inhibitingwalkrand   1
+  set W_amplifyingintention  1        
+  set W_decreasingintention  -1 
+  set W_decreasingfear       -0.3
+
+  set staff_instructions        0
+  set sound_fire_alarm          0
+  set sound_public_announcement 0
+  set total_number_of_survivors 0
+end
+
+to setup-environment
+  ; 0 = no fire in the room but with dangerous situation, 1 = random, 2 = centre, 3 = in front of main door, 4 = in front of another door, not the main., 5 = in a corner.  
+
+  if setting_cultural_cluster_distribution < 1 or setting_cultural_cluster_distribution > 4 [set setting_cultural_cluster_distribution 1]
+  if setting_cultural_cluster_distribution = 1 [set cultural_cluster_distribution [0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09]]  ;; Cultural Clusters ;nw
+  if setting_cultural_cluster_distribution = 2 [set cultural_cluster_distribution [0 0 0 0 0 0 0 0 1 0 0]] 
+  if setting_cultural_cluster_distribution = 3 [set cultural_cluster_distribution [0 0 0 1 0 0 0 0 0 0 0]]
+  if setting_cultural_cluster_distribution = 4 [set cultural_cluster_distribution [0 0 0 0.5 0 0 0 0 0.5 0 0]]
+
+
+  set START_FIRE_ACTION             1
+  set START_FIRE_ALARM_ACTION       START_FIRE_ACTION + 180    ; at same moment of START_FIRE_ACTION or 3 minutes after start fire = 180
+  set START_PA_ACTION               START_FIRE_ALARM_ACTION + 20
+
+
+  set END_OF_SIMULATION             2000 ;ticks
+  set CROWD_CONGESTION_THRESHOLD    5
+  set public_announcement_frequency 60 ;nw per second
+  set alarm_frequency               60
+
+
+  if room_environment_type < 0 or room_environment_type > 7 [set room_environment_type 1]
+  if room_environment_type = 0 [set room_environment_filename "room_square_2doors_up_down.png"]
+  if room_environment_type = 1 [set room_environment_filename "room_square_4doors_main_down.png"]  
+  if room_environment_type = 2 [set room_environment_filename "room_square_2doors_left_right.png"]
+  if room_environment_type = 3 [set room_environment_filename "room_square_4doors_main_left.png"]  
+  if room_environment_type = 4 [set room_environment_filename "room_rectangle_2doors_left_right.png"]
+  if room_environment_type = 5 [set room_environment_filename "room_rectangle_2doors_up_down.png"]
+  if room_environment_type = 6 [set room_environment_filename "room_rectangle_4doors_main_down.png"]
+  if room_environment_type = 7 [set room_environment_filename "room_rectangle_4doors_main_left.png"]  
+  
+  ;nw
+  set lighting_list []
+  if room_environment_type = 2 or room_environment_type = 1 or room_environment_type = 3 [
+    set lighting_list lput (list (patch -10  2) (patch -5  2)) lighting_list
+    set lighting_list lput (list (patch -10  2) (patch -5  6)) lighting_list
+    set lighting_list lput (list (patch -10 -1) (patch -5 -1)) lighting_list
+    set lighting_list lput (list (patch -10 -1) (patch -5 -5)) lighting_list
+    
+    set lighting_list lput (list (patch  10  2) (patch  5  2)) lighting_list
+    set lighting_list lput (list (patch  10  2) (patch  5  6)) lighting_list
+    set lighting_list lput (list (patch  10 -1) (patch  5 -1)) lighting_list
+    set lighting_list lput (list (patch  10 -1) (patch  5 -5)) lighting_list]
+
+  if room_environment_type = 0 or room_environment_type = 1 or room_environment_type = 3 [
+    set lighting_list lput (list (patch -1  10) (patch  -1  5)) lighting_list
+    set lighting_list lput (list (patch -1  10) (patch  -6  6)) lighting_list
+    set lighting_list lput (list (patch  2  10) (patch   2  5)) lighting_list
+    set lighting_list lput (list (patch  2  10) (patch   7  6)) lighting_list
+
+    set lighting_list lput (list (patch -1 -10) (patch  -1  -5)) lighting_list
+    set lighting_list lput (list (patch -1 -10) (patch  -6  -6)) lighting_list
+    set lighting_list lput (list (patch  2 -10) (patch   2  -5)) lighting_list
+    set lighting_list lput (list (patch  2 -10) (patch   7  -6)) lighting_list]
+
+  if room_environment_type = 4 or room_environment_type = 6 or room_environment_type = 7 [
+    set lighting_list lput (list (patch -20  2) (patch -15  2)) lighting_list
+    set lighting_list lput (list (patch -20  2) (patch -15  6)) lighting_list
+    set lighting_list lput (list (patch -20 -1) (patch -15 -1)) lighting_list
+    set lighting_list lput (list (patch -20 -1) (patch -15 -5)) lighting_list
+
+    set lighting_list lput (list (patch  20  2) (patch  15  2)) lighting_list
+    set lighting_list lput (list (patch  20  2) (patch  15  6)) lighting_list
+    set lighting_list lput (list (patch  20 -1) (patch  15 -1)) lighting_list
+    set lighting_list lput (list (patch  20 -1) (patch  15 -5)) lighting_list]
+  
+  if room_environment_type = 5 or room_environment_type = 6 or room_environment_type = 7 [
+    set lighting_list lput       (list (patch -1  10) (patch  -1  5)) lighting_list
+    set lighting_list lput       (list (patch -1  10) (patch  -6  6)) lighting_list
+    set lighting_list lput       (list (patch  2  10) (patch   2  5)) lighting_list
+    set lighting_list lput       (list (patch  2  10) (patch   7  6)) lighting_list
+
+    set lighting_list lput       (list (patch -1 -10) (patch  -1  -5)) lighting_list
+    set lighting_list lput       (list (patch -1 -10) (patch  -6  -6)) lighting_list
+    set lighting_list lput       (list (patch  2 -10) (patch   2  -5)) lighting_list
+    set lighting_list lput       (list (patch  2 -10) (patch   7  -6)) lighting_list]
+  
+  ;nw
+  ;; matrix with the list of compliance levels 
+  ;  row 0=children, row 1=adult, row 2=eldery; colunm 0=male, colunm 1=female
+  set compliance_level_matrix matrix:from-row-list [[0.85 0.89]
+                                                    [0.89 0.94]
+                                                    [0.92 0.97]]
+  ;nw
+  ;; matrix with the list of helping chances of each combination of helper and fallen person;nw-df
+  ;  row 0=male-adult-ingroup,   row 1=male-eldery-ingroup;   row 2=male-adult-outgroup,   row 3=male-eldery-outgroup
+  ;  row 4=female-adult-ingroup, row 5=female-eldery-ingroup; row 6=female-adult-outgroup, row 7=female-eldery-outgroup  
+  ;  column 0=male-child,     column 1=male-adult     column 2=male-eldery
+  ;  column 3=female-child,   column 4=female-adult   column 5=female-eldery
+  set helping_chance_matrix matrix:from-row-list [[0.3 0.15 0.3 0.4 0.3 0.4] 
+                                                  [0.15 0.075 0.15 0.2 0.15 0.2] 
+                                                  [0.252 0.126 0.252 0.336 0.252 0.336]
+                                                  [0.126 0.063 0.126 0.168 0.126 0.168]
+                                                  [0.15 0.075 0.15 0.2 0.15 0.2]
+                                                  [0.075 0.0375 0.075 0.1 0.075 0.1]
+                                                  [0.126 0.063 0.126 0.168 0.126 0.168]
+                                                  [0.063 0.0315 0.063 0.084 0.063 0.084]]
+
+  ;; CONSTANTS: ajust environment conditions
+  set EXIT_COLOR            blue
+  set EXIT_LIGHTING_COLOR   orange
+  set PASSENGERS_COLOR      black 
+  set STAFF_COLOR           green
+  set DEAD_PASSENGERS_COLOR grey
+  set FIRE_COLOR            red
+  set START_EVACUATE_COLOR  pink
+  set FALL_COLOR            orange
+
+  set FIRE_RADIUS           3
+  set OBSERVATION_DISTANCE  5
+  set PROTOCOL_DISTANCE     2
+  ask turtles [set size 0.25]
+end
+
+to control-experiments
+ if ticks = 0 [
+   set _fire_alarm FALSE
+   set _public_announcement FALSE
+   set _fire_alarm FALSE
+ ]
+
+ set-current-plot "average response time"
+ set-current-plot-pen "fire_event"
+ if ticks = START_FIRE_ACTION [ 
+   place-fire
+   plot 200
+ ]     
+ plot 0 
+ 
+ set-current-plot "average response time"
+ set-current-plot-pen "fire_alarm_event"
+ if ticks = START_FIRE_ALARM_ACTION [
+   set _fire_alarm TRUE
+   plot 200
+ ]
+ if ticks = START_PA_ACTION [set _public_announcement TRUE]
+ 
+ plot 0  
+end
