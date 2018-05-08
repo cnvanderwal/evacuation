@@ -34,6 +34,7 @@ to setup-environment
   if setting_cultural_cluster_distribution = 4 [set cultural_cluster_distribution [0 0 0 0.5 0 0 0 0 0.5 0 0]]
 
 
+  set STAFF_CONVINCE_RATE           60
   set START_FIRE_ACTION             1
   set START_FIRE_ALARM_ACTION       START_FIRE_ACTION + 180    ; at same moment of START_FIRE_ACTION or 3 minutes after start fire = 180
   set START_PA_ACTION               START_FIRE_ALARM_ACTION + 20
@@ -45,7 +46,7 @@ to setup-environment
   set alarm_frequency               60
 
 
-  if room_environment_type < 0 or room_environment_type > 7 [set room_environment_type 1]
+  if room_environment_type < 0 or room_environment_type > 8 [set room_environment_type 1]
   if room_environment_type = 0 [set room_environment_filename "room_square_2doors_up_down.png"]
   if room_environment_type = 1 [set room_environment_filename "room_square_4doors_main_down.png"]  
   if room_environment_type = 2 [set room_environment_filename "room_square_2doors_left_right.png"]
@@ -54,10 +55,11 @@ to setup-environment
   if room_environment_type = 5 [set room_environment_filename "room_rectangle_2doors_up_down.png"]
   if room_environment_type = 6 [set room_environment_filename "room_rectangle_4doors_main_down.png"]
   if room_environment_type = 7 [set room_environment_filename "room_rectangle_4doors_main_left.png"]  
+  if room_environment_type = 8 [set room_environment_filename "room_square_2doors_left_right_barriers.png"]
   
   ;nw
   set lighting_list []
-  if room_environment_type = 2 or room_environment_type = 1 or room_environment_type = 3 [
+  if room_environment_type = 2 or room_environment_type = 1 or room_environment_type = 3 or room_environment_type = 8 [
     set lighting_list lput (list (patch -10  2) (patch -5  2)) lighting_list
     set lighting_list lput (list (patch -10  2) (patch -5  6)) lighting_list
     set lighting_list lput (list (patch -10 -1) (patch -5 -1)) lighting_list
@@ -100,7 +102,7 @@ to setup-environment
     set lighting_list lput       (list (patch -1 -10) (patch  -6  -6)) lighting_list
     set lighting_list lput       (list (patch  2 -10) (patch   2  -5)) lighting_list
     set lighting_list lput       (list (patch  2 -10) (patch   7  -6)) lighting_list]
-  
+   
   ;nw
   ;; matrix with the list of compliance levels 
   ;  row 0=children, row 1=adult, row 2=eldery; colunm 0=male, colunm 1=female
@@ -131,8 +133,9 @@ to setup-environment
   set FIRE_COLOR            red
   set START_EVACUATE_COLOR  pink
   set FALL_COLOR            orange
+  set WALL_COLOR            black
 
-  set FIRE_RADIUS           3
+  set FIRE_RADIUS           2
   set OBSERVATION_DISTANCE  5
   set PROTOCOL_DISTANCE     2
   ask turtles [set size 0.25]
